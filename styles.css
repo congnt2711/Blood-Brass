@@ -1,0 +1,539 @@
+:root {
+  --bg: #130f0e;
+  --panel: rgba(21, 18, 17, 0.9);
+  --panel-soft: rgba(31, 25, 23, 0.92);
+  --line: rgba(213, 165, 100, 0.18);
+  --text: #f7efe4;
+  --muted: #c7b8a6;
+  --accent: #d5a564;
+  --accent-strong: #b54f36;
+  --accent-cool: #6d978a;
+  --accent-violet: #7f7aca;
+  --good: #95c98b;
+  --bad: #df7d68;
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  font-family: "Be Vietnam Pro", "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(181, 79, 54, 0.24), transparent 28%),
+    radial-gradient(circle at top right, rgba(109, 151, 138, 0.14), transparent 30%),
+    linear-gradient(180deg, #0c0a09 0%, #15100f 46%, #0f0d0c 100%);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent 92%);
+}
+
+.shell {
+  width: min(1320px, calc(100% - 28px));
+  margin: 0 auto;
+  padding: 24px 0 40px;
+}
+
+.hero,
+.layout {
+  display: grid;
+  gap: 18px;
+}
+
+.hero {
+  grid-template-columns: minmax(0, 1.1fr) minmax(390px, 0.9fr);
+  margin-bottom: 18px;
+}
+
+.layout {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.card,
+.hero-copy {
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+}
+
+.hero-copy {
+  padding: 34px;
+  overflow: hidden;
+  position: relative;
+}
+
+.hero-copy::after {
+  content: "";
+  position: absolute;
+  right: -6%;
+  bottom: -32%;
+  width: 360px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(213, 165, 100, 0.24), transparent 68%);
+}
+
+.eyebrow,
+.overline {
+  margin: 0 0 10px;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+h1,
+h2 {
+  margin: 0;
+  font-family: "Noto Serif", Georgia, serif;
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-size: clamp(42px, 6vw, 74px);
+  line-height: 0.96;
+  max-width: 6ch;
+}
+
+h2 {
+  font-size: 28px;
+}
+
+.hero-text,
+.section-text,
+.save-status,
+.guide-box p,
+.item-subtext,
+.enemy-subtext,
+.log-item small,
+.inline-note,
+.empty-copy {
+  color: var(--muted);
+}
+
+.hero-text {
+  position: relative;
+  z-index: 1;
+  max-width: 580px;
+  margin: 18px 0 0;
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+.card {
+  padding: 22px;
+}
+
+.status-card {
+  display: grid;
+  gap: 18px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.section-heading.compact {
+  margin-bottom: 4px;
+}
+
+.section-text {
+  max-width: 340px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: right;
+}
+
+.badge {
+  align-self: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(213, 165, 100, 0.12);
+  border: 1px solid rgba(213, 165, 100, 0.28);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.status-grid,
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.stat-box,
+.guide-box,
+.list-item,
+.log-item,
+.enemy-panel {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--panel-soft);
+}
+
+.stat-box,
+.guide-box {
+  border-radius: 18px;
+  padding: 14px;
+}
+
+.stat-box span,
+.guide-box span,
+.resource-block small {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.stat-box strong,
+.guide-box strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 22px;
+}
+
+.resource-stack,
+.stack-list,
+.compact-list,
+.controls-row,
+.utility-row {
+  display: grid;
+  gap: 12px;
+}
+
+.resource-block {
+  display: grid;
+  gap: 8px;
+}
+
+.bar-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.bar {
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  transition: width 180ms ease;
+}
+
+.xp {
+  background: linear-gradient(90deg, #d5a564, #f0c57b);
+}
+
+.energy {
+  background: linear-gradient(90deg, #6d978a, #9bc0b5);
+}
+
+.stamina {
+  background: linear-gradient(90deg, #7f7aca, #a49ef0);
+}
+
+.mission-fill {
+  background: linear-gradient(90deg, #b54f36, #d5a564);
+}
+
+.controls-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.utility-row {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.primary-btn,
+.secondary-btn,
+.danger-btn,
+.action-btn,
+.buy-btn,
+.inventory-btn,
+.camp-btn {
+  border: 0;
+  cursor: pointer;
+  transition: transform 140ms ease, opacity 140ms ease, background 140ms ease;
+}
+
+.primary-btn:hover,
+.secondary-btn:hover,
+.danger-btn:hover,
+.action-btn:hover,
+.buy-btn:hover,
+.inventory-btn:hover,
+.camp-btn:hover {
+  transform: translateY(-1px);
+}
+
+.primary-btn,
+.secondary-btn,
+.danger-btn,
+.buy-btn,
+.inventory-btn,
+.camp-btn {
+  padding: 12px 16px;
+  border-radius: 16px;
+  font: inherit;
+  font-weight: 700;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, var(--accent-strong), var(--accent));
+  color: #fff5e8;
+}
+
+.secondary-btn,
+.buy-btn,
+.camp-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
+.danger-btn {
+  background: rgba(223, 125, 104, 0.14);
+  border: 1px solid rgba(223, 125, 104, 0.18);
+  color: #ffd8cf;
+}
+
+.inventory-btn {
+  background: rgba(109, 151, 138, 0.12);
+  color: #e8fff8;
+}
+
+.inventory-btn.sell {
+  background: rgba(181, 79, 54, 0.16);
+  color: #ffe0d8;
+}
+
+.action-btn,
+.list-item {
+  width: 100%;
+  border-radius: 18px;
+}
+
+.action-btn,
+.list-item,
+.enemy-panel,
+.log-item {
+  padding: 16px;
+}
+
+.action-btn {
+  text-align: left;
+  background: linear-gradient(180deg, rgba(48, 36, 32, 0.96), rgba(26, 22, 20, 0.98));
+  border: 1px solid rgba(213, 165, 100, 0.14);
+  color: var(--text);
+}
+
+.action-title,
+.item-name,
+.enemy-name {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.action-topline,
+.item-topline,
+.enemy-topline,
+.log-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.pill-row,
+.combat-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pill-row {
+  margin-top: 10px;
+}
+
+.pill {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.req-pill {
+  background: rgba(109, 151, 138, 0.12);
+  color: #b9dbd0;
+}
+
+.req-pill.locked {
+  background: rgba(181, 79, 54, 0.16);
+  color: #ffc8ba;
+}
+
+.req-pill.done {
+  background: rgba(149, 201, 139, 0.14);
+  color: #d6f2cf;
+}
+
+.enemy-panel {
+  border-radius: 20px;
+  display: grid;
+  gap: 12px;
+  min-height: 190px;
+}
+
+.mission-status {
+  margin-top: 18px;
+}
+
+.save-status {
+  margin: 0;
+  font-size: 13px;
+}
+
+.item-price {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.slot-name {
+  color: var(--accent-cool);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.good {
+  color: var(--good);
+}
+
+.bad {
+  color: var(--bad);
+}
+
+.activities-card,
+.inventory-card {
+  grid-column: span 4;
+}
+
+.arena-card,
+.boss-card,
+.camp-card {
+  grid-column: span 4;
+}
+
+.market-card {
+  grid-column: span 4;
+}
+
+.equipment-card,
+.guide-card {
+  grid-column: span 6;
+}
+
+.log-card {
+  grid-column: span 12;
+}
+
+.primary-btn[disabled],
+.secondary-btn[disabled],
+.action-btn[disabled],
+.buy-btn[disabled],
+.inventory-btn[disabled],
+.camp-btn[disabled] {
+  opacity: 0.42;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 1180px) {
+  .hero,
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .activities-card,
+  .arena-card,
+  .boss-card,
+  .market-card,
+  .equipment-card,
+  .inventory-card,
+  .camp-card,
+  .guide-card,
+  .log-card {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 780px) {
+  .shell {
+    width: min(100% - 18px, 100%);
+    padding-top: 12px;
+  }
+
+  .hero-copy,
+  .card {
+    border-radius: 20px;
+    padding: 18px;
+  }
+
+  .status-grid,
+  .guide-grid,
+  .controls-row,
+  .utility-row {
+    grid-template-columns: 1fr;
+  }
+
+  .section-heading,
+  .action-topline,
+  .item-topline,
+  .enemy-topline,
+  .log-item {
+    flex-direction: column;
+  }
+
+  .section-text {
+    max-width: none;
+    text-align: left;
+  }
+}
