@@ -1,7 +1,17 @@
 const SAVE_KEY = "blood-and-brass-save-v3";
 const ENERGY_REGEN_MS = 60 * 1000;
-const STAMINA_REGEN_MS = 60 * 60 * 1000;
+const STAMINA_REGEN_BASE_MS = 10 * 60 * 1000;
+const STAMINA_REGEN_LEVEL_REDUCTION_MS = 2 * 1000;
+const SHOP_AUTO_REFRESH_MS = 60 * 60 * 1000;
 const INVENTORY_LIMIT = 18;
+const rarityTiers = [
+  { key: "common", label: "Trắng", className: "rarity-common", multiplier: 1, minLevel: 1 },
+  { key: "azure", label: "Xanh lam", className: "rarity-azure", multiplier: 2, minLevel: 2 },
+  { key: "blue", label: "Xanh dương", className: "rarity-blue", multiplier: 4, minLevel: 4 },
+  { key: "epic", label: "Tím", className: "rarity-epic", multiplier: 8, minLevel: 6 },
+  { key: "legendary", label: "Vàng", className: "rarity-legendary", multiplier: 16, minLevel: 8 },
+  { key: "mythic", label: "Đỏ", className: "rarity-mythic", multiplier: 32, minLevel: 10 },
+];
 
 const dungeons = [
   { id: "dungeon-1", name: "Hẻm Gãy Xương", requiredLevel: 1, duration: 12, energyCost: 3, goldRange: [28, 44], xpRange: [16, 26], danger: 12, lootChance: 0.18 },
@@ -119,6 +129,7 @@ function createInitialState() {
       shopTier: 1,
       bossClears: [],
       shopRefreshCount: 0,
+      lastShopRefreshAt: Date.now(),
     },
   };
 }
@@ -242,6 +253,88 @@ function itemScore(item) {
   return item.stats.strength * 2.2 + item.stats.agility * 1.8 + item.stats.vitality * 2.1 + item.stats.renown * 1.4;
 }
 
+function staminaRegenMs() {
+  return Math.max(60 * 1000, STAMINA_REGEN_BASE_MS - (state.player.level - 1) * STAMINA_REGEN_LEVEL_REDUCTION_MS);
+}
+
+function formatDurationShort(ms) {
+  const totalSeconds = Math.max(1, Math.round(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  if (minutes > 0 && seconds > 0) {
+    return `${minutes}p ${seconds}s`;
+  }
+  if (minutes > 0) {
+    return `${minutes}p`;
+  }
+  return `${seconds}s`;
+}
+
+function nextShopRefreshInMs(now = Date.now()) {
+  const lastRefreshAt = state.meta.lastShopRefreshAt ?? now;
+  return Math.max(0, SHOP_AUTO_REFRESH_MS - (now - lastRefreshAt));
+}
+
+function rarityForLevel(level, bias = 0) {
+  const roll = Math.random() * 100 + bias + level * 4.5;
+  if (roll >= 130) return rarityTiers[5];
+  if (roll >= 104) return rarityTiers[4];
+  if (roll >= 82) return rarityTiers[3];
+  if (roll >= 56) return rarityTiers[2];
+  if (roll >= 32) return rarityTiers[1];
+  return rarityTiers[0];
+}
+
+function applyRarityToItem(baseItem, rarity, level = state.player.level) {
+  const levelFactor = 1 + Math.max(0, level - 1) * 0.09;
+  const statFactor = rarity.multiplier * levelFactor;
+  const scaled = cloneItem(baseItem);
+  scaled.rarity = rarity;
+  scaled.baseId = baseItem.id ?? baseItem.name;
+  scaled.name = `${scaled.name} [${rarity.label}]`;
+  scaled.stats = {
+    strength: Math.max(0, Math.round(scaled.stats.strength * statFactor)),
+    agility: Math.max(0, Math.round(scaled.stats.agility * statFactor)),
+    vitality: Math.max(0, Math.round(scaled.stats.vitality * statFactor)),
+    renown: Math.max(0, Math.round(scaled.stats.renown * Math.max(1, rarity.multiplier / 2) * (1 + Math.max(0, level - 1) * 0.05))),
+  };
+  const baseValue = baseItem.cost ?? Math.max(20, Math.round(itemScore(baseItem) * 8));
+  scaled.value = Math.max(baseValue, Math.round(baseValue * rarity.multiplier * levelFactor));
+  if (typeof baseItem.cost === "number") {
+    scaled.cost = scaled.value;
+  }
+  return scaled;
+}
+
+function normalizeSavedItem(item) {
+  if (!item) {
+    return item;
+  }
+  if (item.rarity?.className) {
+    return item;
+  }
+  const fallbackRarity = rarityTiers[0];
+  return {
+    ...item,
+    rarity: fallbackRarity,
+    value: item.value ?? item.cost ?? Math.max(20, Math.round(itemScore(item) * 8)),
+  };
+}
+
+function compareAgainstEquipped(item) {
+  const current = state.gear[item.slot];
+  if (!current) {
+    return { current: null, delta: itemScore(item), label: `Ô ${item.slot} đang trống`, tone: "good" };
+  }
+  const delta = Math.round((itemScore(item) - itemScore(current)) * 10) / 10;
+  return {
+    current,
+    delta,
+    label: `So với đồ mặc: ${delta >= 0 ? "+" : ""}${delta}`,
+    tone: delta >= 0 ? "good" : "bad",
+  };
+}
+
 function currentRefreshCost() {
   return 30 + shopTierForLevel(state.player.level) * 18 + state.meta.shopRefreshCount * 12;
 }
@@ -269,7 +362,7 @@ function addLog(text, tone = "good") {
   queueSave();
 }
 
-function ensureShopForLevel(force = false) {
+function ensureShopForLevel(force = false, reason = "level") {
   const tier = shopTierForLevel(state.player.level);
   const needRefresh = force || state.shop.length === 0 || state.meta.shopTier !== tier;
   if (!needRefresh) {
@@ -277,11 +370,16 @@ function ensureShopForLevel(force = false) {
   }
 
   const available = itemCatalog.filter((item) => item.minLevel <= state.player.level + 1);
-  const freshStock = pickRandomUnique(available, Math.min(6, available.length)).map(cloneItem);
+  const freshStock = pickRandomUnique(available, Math.min(6, available.length)).map((item) =>
+    applyRarityToItem(item, rarityForLevel(state.player.level, 8), state.player.level)
+  );
   state.shop = freshStock;
   state.meta.shopTier = tier;
-  if (force) {
+  state.meta.lastShopRefreshAt = Date.now();
+  if (force && reason === "manual") {
     state.meta.shopRefreshCount += 1;
+  } else if (reason === "timer") {
+    addLog("Chợ đêm vừa tự thay lô hàng mới sau 60 phút.", "good");
   } else if (state.player.level > 1) {
     addLog("Chợ đêm vừa nhập lô hàng mới theo mốc cấp hiện tại.", "good");
   }
@@ -308,14 +406,11 @@ function generateLoot(powerHint) {
   item.stats.strength += randInt(0, bonus);
   item.stats.agility += randInt(0, bonus);
   item.stats.vitality += randInt(0, bonus);
-  item.value = Math.max(24, Math.round(itemScore(item) * 8));
-  return item;
+  return applyRarityToItem(item, rarityForLevel(state.player.level, powerHint / 3), state.player.level);
 }
 
 function makeRewardItem(item) {
-  const reward = cloneItem(item);
-  reward.value = Math.max(40, Math.round(itemScore(reward) * 9));
-  return reward;
+  return applyRarityToItem(item, rarityForLevel(state.player.level, 40), state.player.level);
 }
 
 function pushInventory(item, sourceLabel) {
@@ -434,6 +529,7 @@ function serializeState() {
       shopTier: state.meta.shopTier,
       bossClears: state.meta.bossClears,
       shopRefreshCount: state.meta.shopRefreshCount,
+      lastShopRefreshAt: state.meta.lastShopRefreshAt,
     },
   };
 }
@@ -463,11 +559,13 @@ function restoreState() {
       ...base,
       ...parsed,
       player: { ...base.player, ...parsed.player },
-      gear: { ...base.gear, ...parsed.gear },
-      inventory: Array.isArray(parsed.inventory) ? parsed.inventory : [],
+      gear: Object.fromEntries(
+        Object.entries({ ...base.gear, ...parsed.gear }).map(([slot, item]) => [slot, normalizeSavedItem(item)])
+      ),
+      inventory: Array.isArray(parsed.inventory) ? parsed.inventory.map(normalizeSavedItem) : [],
       meta: { ...base.meta, ...parsed.meta, bossClears: Array.isArray(parsed?.meta?.bossClears) ? parsed.meta.bossClears : [] },
       logs: Array.isArray(parsed.logs) ? parsed.logs.slice(0, 18) : [],
-      shop: Array.isArray(parsed.shop) ? parsed.shop : [],
+      shop: Array.isArray(parsed.shop) ? parsed.shop.map(normalizeSavedItem) : [],
     };
     return true;
   } catch {
@@ -482,7 +580,8 @@ function applyPassiveRegen(now = Date.now()) {
   const energyElapsed = Math.max(0, now - lastEnergyTick);
   const staminaElapsed = Math.max(0, now - lastStaminaTick);
   const energyGain = Math.floor(energyElapsed / ENERGY_REGEN_MS);
-  const staminaGain = Math.floor(staminaElapsed / STAMINA_REGEN_MS);
+  const staminaInterval = staminaRegenMs();
+  const staminaGain = Math.floor(staminaElapsed / staminaInterval);
 
   if (energyGain > 0) {
     state.player.energy = Math.min(state.player.maxEnergy, state.player.energy + energyGain);
@@ -490,7 +589,7 @@ function applyPassiveRegen(now = Date.now()) {
   }
   if (staminaGain > 0) {
     state.player.stamina = Math.min(state.player.maxStamina, state.player.stamina + staminaGain);
-    state.meta.lastStaminaTickAt = lastStaminaTick + staminaGain * STAMINA_REGEN_MS;
+    state.meta.lastStaminaTickAt = lastStaminaTick + staminaGain * staminaInterval;
   }
   if (energyGain === 0 && !state.meta.lastEnergyTickAt) {
     state.meta.lastEnergyTickAt = now;
@@ -501,6 +600,11 @@ function applyPassiveRegen(now = Date.now()) {
 
   if (energyGain > 0 || staminaGain > 0) {
     queueSave();
+  }
+
+  if (nextShopRefreshInMs(now) === 0) {
+    state.meta.shopRefreshCount = 0;
+    ensureShopForLevel(true, "timer");
   }
 }
 
@@ -657,7 +761,7 @@ function refreshShop() {
   }
 
   state.player.gold -= cost;
-  ensureShopForLevel(true);
+  ensureShopForLevel(true, "manual");
   addLog(`Đã chi ${cost} vàng để làm mới chợ đêm.`, "good");
   render();
   queueSave();
@@ -731,7 +835,7 @@ function renderPlayer() {
   els.staminaBar.style.width = `${(state.player.stamina / state.player.maxStamina) * 100}%`;
   els.xpBar.style.width = `${(state.player.xp / state.player.xpToNext) * 100}%`;
   els.energyRegenText.textContent = "+1 mana mỗi phút";
-  els.staminaRegenText.textContent = "+1 stamina mỗi giờ";
+  els.staminaRegenText.textContent = `+1 stamina mỗi ${formatDurationShort(staminaRegenMs())}`;
   updateSaveStatus();
 }
 
@@ -834,8 +938,9 @@ function renderBosses() {
 
 function renderShop() {
   const tier = shopTierForLevel(state.player.level);
+  const refreshMinutes = Math.ceil(nextShopRefreshInMs() / 60000);
   els.shopTierLabel.textContent = `Chợ đêm đang ở tier ${tier}. Hàng mở rộng dần theo cấp nhân vật.`;
-  els.refreshShopCost.textContent = `Phí: ${currentRefreshCost()} vàng`;
+  els.refreshShopCost.textContent = `Phí: ${currentRefreshCost()} vàng · Tự reset sau ${refreshMinutes} phút`;
   els.refreshShopBtn.disabled = state.player.gold < currentRefreshCost();
 
   if (state.shop.length === 0) {
@@ -844,8 +949,10 @@ function renderShop() {
   }
 
   els.shopList.innerHTML = state.shop
-    .map(
-      (item) => `
+    .map((item) => {
+      const rarity = item.rarity ?? rarityTiers[0];
+      const comparison = compareAgainstEquipped(item);
+      return `
         <article class="list-item">
           <div class="item-topline">
             <div>
@@ -856,15 +963,18 @@ function renderShop() {
             <div class="item-price">${item.cost} vàng</div>
           </div>
           <div class="pill-row">
+            <span class="pill ${rarity.className}">${rarity.label}</span>
             <span class="pill">STR +${item.stats.strength}</span>
             <span class="pill">AGI +${item.stats.agility}</span>
             <span class="pill">VIT +${item.stats.vitality}</span>
             <span class="pill">REN +${item.stats.renown}</span>
+            <span class="pill ${comparison.tone}">${comparison.label}</span>
+            ${comparison.current ? `<span class="pill">Đang mặc: ${comparison.current.name}</span>` : ""}
           </div>
           <button class="buy-btn" data-buy-id="${item.id}" ${state.player.gold < item.cost ? "disabled" : ""}>Mua ngay</button>
         </article>
-      `
-    )
+      `;
+    })
     .join("");
 }
 
@@ -874,7 +984,7 @@ function renderGear() {
       const icon = slotIcons[slot] ?? "◆";
       const emptyClass = item ? "" : "empty";
       const detail = item
-        ? `<strong>${item.name}</strong><div class="item-subtext">STR +${item.stats.strength} · AGI +${item.stats.agility} · VIT +${item.stats.vitality} · REN +${item.stats.renown}</div>`
+        ? `<strong>${item.name}</strong><div class="item-subtext">${item.rarity?.label ?? "Trắng"} · STR +${item.stats.strength} · AGI +${item.stats.agility} · VIT +${item.stats.vitality} · REN +${item.stats.renown}</div>`
         : `<strong>Ô ${slot}</strong><div class="item-subtext">Chưa có trang bị.</div>`;
       return `
         <article class="paperdoll-slot ${emptyClass}">
@@ -897,10 +1007,7 @@ function renderInventory() {
 
   els.inventoryList.innerHTML = state.inventory
     .map((item, index) => {
-      const current = state.gear[item.slot];
-      const diff = current ? Math.round((itemScore(item) - itemScore(current)) * 10) / 10 : itemScore(item).toFixed(1);
-      const diffTone = !current || diff >= 0 ? "good" : "bad";
-      const diffLabel = !current ? `Ô ${item.slot} đang trống` : `So với đồ mặc: ${diff >= 0 ? "+" : ""}${diff}`;
+      const comparison = compareAgainstEquipped(item);
       return `
         <article class="inventory-tile">
           <div class="item-topline">
@@ -912,7 +1019,8 @@ function renderInventory() {
             <div class="item-price">${item.value} vàng</div>
           </div>
           <div class="pill-row">
-            <span class="pill ${diffTone}">${diffLabel}</span>
+            <span class="pill ${item.rarity?.className ?? "rarity-common"}">${item.rarity?.label ?? "Trắng"}</span>
+            <span class="pill ${comparison.tone}">${comparison.label}</span>
           </div>
           <div class="item-actions">
             <button class="inventory-btn" data-equip-index="${index}">Trang bị</button>

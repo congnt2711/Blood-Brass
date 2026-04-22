@@ -653,6 +653,36 @@ h2 {
   color: var(--bad);
 }
 
+.rarity-common {
+  color: #efe8d4;
+  border-color: rgba(239, 232, 212, 0.18);
+}
+
+.rarity-azure {
+  color: #7de0ff;
+  border-color: rgba(125, 224, 255, 0.22);
+}
+
+.rarity-blue {
+  color: #64a5ff;
+  border-color: rgba(100, 165, 255, 0.22);
+}
+
+.rarity-epic {
+  color: #d18aff;
+  border-color: rgba(209, 138, 255, 0.22);
+}
+
+.rarity-legendary {
+  color: #ffd76d;
+  border-color: rgba(255, 215, 109, 0.22);
+}
+
+.rarity-mythic {
+  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.24);
+}
+
 .overview-status,
 .activities-card,
 .inventory-card {
