@@ -40,6 +40,18 @@
               <span class="badge ghost-badge">Tổng quan</span>
             </div>
 
+            <div class="account-panel">
+              <div>
+                <div class="slot-name">Tài khoản</div>
+                <div id="account-name" class="item-name">Chưa đăng nhập</div>
+                <div id="account-meta" class="item-subtext">Tiến trình được tự động lưu theo tài khoản.</div>
+              </div>
+              <div class="account-actions">
+                <input id="account-input" class="account-input" type="text" maxlength="24" placeholder="Tên tài khoản">
+                <button id="account-btn" class="primary-btn" type="button">Vào game</button>
+              </div>
+            </div>
+
             <div class="status-grid">
               <div class="stat-box">
                 <span>Vàng</span>
@@ -113,10 +125,6 @@
               </div>
             </div>
 
-            <div class="controls-row">
-              <button id="save-btn" class="secondary-btn">Lưu tiến trình</button>
-              <button id="reset-btn" class="danger-btn">Xóa save</button>
-            </div>
             <p id="save-status" class="save-status">Chưa có dữ liệu lưu.</p>
           </section>
 
@@ -213,6 +221,18 @@
             </div>
 
             <div id="boss-list" class="stack-list"></div>
+          </section>
+
+          <section class="card pvp-card">
+            <div class="section-heading">
+              <div>
+                <p class="overline">Arena PvP</p>
+                <h2>Thách đấu người chơi</h2>
+              </div>
+              <p class="section-text">Đối đầu các tài khoản khác đã từng được tạo trong trình duyệt này. Người thắng sẽ cướp một phần vàng của người thua.</p>
+            </div>
+
+            <div id="pvp-list" class="stack-list"></div>
           </section>
         </div>
       </section>

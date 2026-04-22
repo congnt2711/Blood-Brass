@@ -264,7 +264,8 @@ h2 {
 .stack-list,
 .compact-list,
 .controls-row,
-.utility-row {
+.utility-row,
+.account-actions {
   display: grid;
   gap: 12px;
 }
@@ -320,6 +321,31 @@ h2 {
   grid-template-columns: auto 1fr;
   align-items: center;
   margin-bottom: 14px;
+}
+
+.account-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.account-actions {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.account-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(213, 165, 100, 0.16);
+  background: rgba(0, 0, 0, 0.16);
+  color: var(--text);
+  font: inherit;
 }
 
 .primary-btn,
@@ -691,7 +717,8 @@ h2 {
 
 .arena-card,
 .boss-card,
-.camp-card {
+.camp-card,
+.pvp-card {
   grid-column: span 4;
 }
 
@@ -770,6 +797,8 @@ h2 {
   .guide-grid,
   .controls-row,
   .utility-row,
+  .account-panel,
+  .account-actions,
   .character-shell,
   .paperdoll-grid,
   .inventory-grid {
