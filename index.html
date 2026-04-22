@@ -11,249 +11,327 @@
 </head>
 <body>
   <div class="shell">
-    <header class="hero">
-      <div class="hero-copy">
+    <header class="topbar">
+      <div class="brand-block">
         <p class="eyebrow">Web RPG Prototype</p>
-        <h1>Blood & Brass</h1>
-        <p class="hero-text">
-          Một browser RPG nhịp chậm, nơi bạn farm dungeon, đấu trường, boss mốc cấp và tối ưu bộ đồ
-          giữa thành phố gothic-industrial đang ngủ gật dưới tiếng chuông đồng.
-        </p>
-      </div>
-
-      <section class="card status-card">
-        <div class="section-heading compact">
-          <div>
-            <p class="overline">Hồ sơ nhân vật</p>
-            <h2 id="player-title">Kẻ vô danh</h2>
-          </div>
+        <div class="brand-row">
+          <h1>Blood & Brass</h1>
           <span id="player-level" class="badge">Lv. 1</span>
         </div>
+      </div>
 
-        <div class="status-grid">
-          <div class="stat-box">
-            <span>Vàng</span>
-            <strong id="gold-value">0</strong>
-          </div>
-          <div class="stat-box">
-            <span>Máu</span>
-            <strong id="hp-value">0 / 0</strong>
-          </div>
-          <div class="stat-box">
-            <span>Sức mạnh</span>
-            <strong id="strength-stat">0</strong>
-          </div>
-          <div class="stat-box">
-            <span>Nhanh nhẹn</span>
-            <strong id="agility-stat">0</strong>
-          </div>
-          <div class="stat-box">
-            <span>Thể lực</span>
-            <strong id="vitality-stat">0</strong>
-          </div>
-          <div class="stat-box">
-            <span>Uy danh</span>
-            <strong id="renown-stat">0</strong>
-          </div>
-          <div class="stat-box">
-            <span>Power</span>
-            <strong id="power-stat">0</strong>
-          </div>
-          <div class="stat-box">
-            <span>Đồ trong kho</span>
-            <strong id="inventory-count">0 / 0</strong>
-          </div>
-          <div class="stat-box">
-            <span>Boss đã hạ</span>
-            <strong id="boss-count">0 / 0</strong>
-          </div>
-        </div>
-
-        <div class="resource-stack">
-          <div class="resource-block">
-            <div class="bar-label-row">
-              <span>Năng lượng</span>
-              <span id="energy-value">0 / 0</span>
-            </div>
-            <div class="bar">
-              <div id="energy-bar" class="bar-fill energy"></div>
-            </div>
-            <small id="energy-regen-text">+1 mỗi phút</small>
-          </div>
-
-          <div class="resource-block">
-            <div class="bar-label-row">
-              <span>Stamina đấu trường</span>
-              <span id="stamina-value">0 / 0</span>
-            </div>
-            <div class="bar">
-              <div id="stamina-bar" class="bar-fill stamina"></div>
-            </div>
-            <small id="stamina-regen-text">+1 mỗi giờ</small>
-          </div>
-
-          <div class="resource-block">
-            <div class="bar-label-row">
-              <span>Kinh nghiệm</span>
-              <span id="xp-text">0 / 0</span>
-            </div>
-            <div class="bar">
-              <div id="xp-bar" class="bar-fill xp"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="controls-row">
-          <button id="save-btn" class="secondary-btn">Lưu tiến trình</button>
-          <button id="reset-btn" class="danger-btn">Xóa save</button>
-        </div>
-        <p id="save-status" class="save-status">Chưa có dữ liệu lưu.</p>
-      </section>
+      <nav class="page-nav" aria-label="Điều hướng chính">
+        <button class="nav-btn active" data-page-target="overview">Tổng quan</button>
+        <button class="nav-btn" data-page-target="hunt">Săn đêm</button>
+        <button class="nav-btn" data-page-target="arsenal">Nhân vật</button>
+        <button class="nav-btn" data-page-target="chronicle">Nhật ký</button>
+      </nav>
     </header>
 
-    <main class="layout">
-      <section class="card activities-card">
-        <div class="section-heading">
-          <div>
-            <p class="overline">Hoạt động</p>
-            <h2>Dungeon & Nhiệm vụ</h2>
-          </div>
-          <p class="section-text">Dungeon tiêu hao năng lượng và là nguồn farm ổn định nhất cho vàng, XP và đồ rơi.</p>
-        </div>
+    <main class="page-stack">
+      <section class="page active" data-page="overview">
+        <div class="layout">
+          <section class="card status-card overview-status">
+            <div class="section-heading compact">
+              <div>
+                <p class="overline">Hồ sơ nhân vật</p>
+                <h2 id="player-title">Kẻ vô danh</h2>
+              </div>
+              <span class="badge ghost-badge">Tổng quan</span>
+            </div>
 
-        <div id="dungeon-list" class="stack-list"></div>
+            <div class="status-grid">
+              <div class="stat-box">
+                <span>Vàng</span>
+                <strong id="gold-value">0</strong>
+              </div>
+              <div class="stat-box">
+                <span>Máu</span>
+                <strong id="hp-value">0 / 0</strong>
+              </div>
+              <div class="stat-box">
+                <span>Sức mạnh</span>
+                <strong id="strength-stat">0</strong>
+              </div>
+              <div class="stat-box">
+                <span>Nhanh nhẹn</span>
+                <strong id="agility-stat">0</strong>
+              </div>
+              <div class="stat-box">
+                <span>Thể lực</span>
+                <strong id="vitality-stat">0</strong>
+              </div>
+              <div class="stat-box">
+                <span>Uy danh</span>
+                <strong id="renown-stat">0</strong>
+              </div>
+              <div class="stat-box">
+                <span>Power</span>
+                <strong id="power-stat">0</strong>
+              </div>
+              <div class="stat-box">
+                <span>Đồ trong kho</span>
+                <strong id="inventory-count">0 / 0</strong>
+              </div>
+              <div class="stat-box">
+                <span>Boss đã hạ</span>
+                <strong id="boss-count">0 / 0</strong>
+              </div>
+            </div>
 
-        <div class="mission-status">
-          <div class="bar-label-row">
-            <span id="mission-name">Chưa có hoạt động đang chạy</span>
-            <span id="mission-time">0s</span>
-          </div>
-          <div class="bar">
-            <div id="mission-bar" class="bar-fill mission-fill"></div>
-          </div>
+            <div class="resource-stack">
+              <div class="resource-block">
+                <div class="bar-label-row">
+                  <span>Năng lượng</span>
+                  <span id="energy-value">0 / 0</span>
+                </div>
+                <div class="bar">
+                  <div id="energy-bar" class="bar-fill energy"></div>
+                </div>
+                <small id="energy-regen-text">+1 mỗi phút</small>
+              </div>
+
+              <div class="resource-block">
+                <div class="bar-label-row">
+                  <span>Stamina đấu trường</span>
+                  <span id="stamina-value">0 / 0</span>
+                </div>
+                <div class="bar">
+                  <div id="stamina-bar" class="bar-fill stamina"></div>
+                </div>
+                <small id="stamina-regen-text">+1 mỗi giờ</small>
+              </div>
+
+              <div class="resource-block">
+                <div class="bar-label-row">
+                  <span>Kinh nghiệm</span>
+                  <span id="xp-text">0 / 0</span>
+                </div>
+                <div class="bar">
+                  <div id="xp-bar" class="bar-fill xp"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="controls-row">
+              <button id="save-btn" class="secondary-btn">Lưu tiến trình</button>
+              <button id="reset-btn" class="danger-btn">Xóa save</button>
+            </div>
+            <p id="save-status" class="save-status">Chưa có dữ liệu lưu.</p>
+          </section>
+
+          <section class="card guide-card">
+            <div class="section-heading">
+              <div>
+                <p class="overline">Định hướng</p>
+                <h2>Vertical slice hiện tại</h2>
+              </div>
+              <p class="section-text">Prototype này đã có vòng lặp chặt hơn: farm, giữ đồ, tối ưu build, đánh boss và chuẩn bị deploy online.</p>
+            </div>
+
+            <div class="guide-grid">
+              <div class="guide-box">
+                <span>Hoàn thiện hơn</span>
+                <strong>Inventory + Boss</strong>
+                <p>Không còn chỉ auto-equip. Boss tạo ra mốc tiến triển rõ rệt theo cấp.</p>
+              </div>
+              <div class="guide-box">
+                <span>Hiện tại</span>
+                <strong>Playable online</strong>
+                <p>App là static site thuần HTML/CSS/JS, phù hợp để deploy trực tiếp lên GitHub Pages.</p>
+              </div>
+              <div class="guide-box">
+                <span>Bước sau</span>
+                <strong>Account thật</strong>
+                <p>Khi cần multiplayer hoặc chống cheat, nên tách combat và timer sang backend authoritative.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="card camp-card">
+            <div class="section-heading">
+              <div>
+                <p class="overline">Khu trú chân</p>
+                <h2>Hồi phục & chuẩn bị</h2>
+              </div>
+              <p class="section-text">Dùng vàng để hồi máu trước khi lao vào boss hoặc chuỗi đấu trường dài.</p>
+            </div>
+
+            <div id="camp-panel" class="guide-grid"></div>
+          </section>
         </div>
       </section>
 
-      <section class="card arena-card">
-        <div class="section-heading">
-          <div>
-            <p class="overline">Đấu trường</p>
-            <h2>Thách đấu đối thủ</h2>
-          </div>
-          <p class="section-text">Mỗi trận tốn 1 stamina. Đây là nguồn uy danh và là nơi kiểm tra sức mạnh build hiện tại.</p>
-        </div>
+      <section class="page" data-page="hunt">
+        <div class="layout">
+          <section class="card activities-card">
+            <div class="section-heading">
+              <div>
+                <p class="overline">Hoạt động</p>
+                <h2>Dungeon & Nhiệm vụ</h2>
+              </div>
+              <p class="section-text">Dungeon tiêu hao năng lượng và là nguồn farm ổn định nhất cho vàng, XP và đồ rơi.</p>
+            </div>
 
-        <div id="enemy-panel" class="enemy-panel"></div>
+            <div id="dungeon-list" class="stack-list"></div>
 
-        <div class="combat-actions">
-          <button id="reroll-enemy" class="secondary-btn">Đổi đối thủ</button>
-          <button id="fight-btn" class="primary-btn">Thách đấu</button>
-        </div>
-      </section>
+            <div class="mission-status">
+              <div class="bar-label-row">
+                <span id="mission-name">Chưa có hoạt động đang chạy</span>
+                <span id="mission-time">0s</span>
+              </div>
+              <div class="bar">
+                <div id="mission-bar" class="bar-fill mission-fill"></div>
+              </div>
+            </div>
+          </section>
 
-      <section class="card boss-card">
-        <div class="section-heading">
-          <div>
-            <p class="overline">Boss mốc cấp</p>
-            <h2>Phong ấn khu vực</h2>
-          </div>
-          <p class="section-text">Boss chỉ hạ một lần nhưng trả thưởng lớn và mở ra bước nhảy sức mạnh rõ rệt.</p>
-        </div>
+          <section class="card arena-card">
+            <div class="section-heading">
+              <div>
+                <p class="overline">Đấu trường</p>
+                <h2>Thách đấu đối thủ</h2>
+              </div>
+              <p class="section-text">Mỗi trận tốn 1 stamina. Đây là nguồn uy danh và là nơi kiểm tra sức mạnh build hiện tại.</p>
+            </div>
 
-        <div id="boss-list" class="stack-list"></div>
-      </section>
+            <div id="enemy-panel" class="enemy-panel"></div>
 
-      <section class="card market-card">
-        <div class="section-heading">
-          <div>
-            <p class="overline">Chợ đêm</p>
-            <h2>Trang bị theo cấp</h2>
-          </div>
-          <p id="shop-tier-label" class="section-text">Hàng hóa thay đổi theo level hiện tại.</p>
-        </div>
+            <div class="combat-actions">
+              <button id="reroll-enemy" class="secondary-btn">Đổi đối thủ</button>
+              <button id="fight-btn" class="primary-btn">Thách đấu</button>
+            </div>
+          </section>
 
-        <div class="utility-row">
-          <button id="refresh-shop-btn" class="secondary-btn">Làm mới shop</button>
-          <span id="refresh-shop-cost" class="inline-note">Phí: 0 vàng</span>
-        </div>
+          <section class="card boss-card">
+            <div class="section-heading">
+              <div>
+                <p class="overline">Boss mốc cấp</p>
+                <h2>Phong ấn khu vực</h2>
+              </div>
+              <p class="section-text">Boss chỉ hạ một lần nhưng trả thưởng lớn và mở ra bước nhảy sức mạnh rõ rệt.</p>
+            </div>
 
-        <div id="shop-list" class="stack-list"></div>
-      </section>
-
-      <section class="card equipment-card">
-        <div class="section-heading">
-          <div>
-            <p class="overline">Trang bị</p>
-            <h2>Bộ đồ hiện tại</h2>
-          </div>
-          <p class="section-text">Bạn có thể giữ đồ trong kho và tự quyết định món nào được trang bị.</p>
-        </div>
-
-        <div id="gear-list" class="stack-list compact-list"></div>
-      </section>
-
-      <section class="card inventory-card">
-        <div class="section-heading">
-          <div>
-            <p class="overline">Kho đồ</p>
-            <h2>Inventory thật</h2>
-          </div>
-          <p class="section-text">Đồ nhặt được sẽ vào kho nếu không mạnh hơn đồ đang mặc. Bạn có thể equip hoặc bán thủ công.</p>
-        </div>
-
-        <div id="inventory-list" class="stack-list compact-list"></div>
-      </section>
-
-      <section class="card camp-card">
-        <div class="section-heading">
-          <div>
-            <p class="overline">Khu trú chân</p>
-            <h2>Hồi phục & chuẩn bị</h2>
-          </div>
-          <p class="section-text">Dùng vàng để hồi máu trước khi lao vào boss hoặc chuỗi đấu trường dài.</p>
-        </div>
-
-        <div id="camp-panel" class="guide-grid"></div>
-      </section>
-
-      <section class="card guide-card">
-        <div class="section-heading">
-          <div>
-            <p class="overline">Định hướng</p>
-            <h2>Vertical slice hiện tại</h2>
-          </div>
-          <p class="section-text">Prototype này đã có vòng lặp chặt hơn: farm, giữ đồ, tối ưu build, đánh boss và chuẩn bị deploy online.</p>
-        </div>
-
-        <div class="guide-grid">
-          <div class="guide-box">
-            <span>Hoàn thiện hơn</span>
-            <strong>Inventory + Boss</strong>
-            <p>Không còn chỉ auto-equip. Boss tạo ra mốc tiến triển rõ rệt theo cấp.</p>
-          </div>
-          <div class="guide-box">
-            <span>Hiện tại</span>
-            <strong>Playable online</strong>
-            <p>App là static site thuần HTML/CSS/JS, phù hợp để deploy trực tiếp lên GitHub Pages.</p>
-          </div>
-          <div class="guide-box">
-            <span>Bước sau</span>
-            <strong>Account thật</strong>
-            <p>Khi cần multiplayer hoặc chống cheat, nên tách combat và timer sang backend authoritative.</p>
-          </div>
+            <div id="boss-list" class="stack-list"></div>
+          </section>
         </div>
       </section>
 
-      <section class="card log-card">
-        <div class="section-heading">
-          <div>
-            <p class="overline">Nhật ký đêm</p>
-            <h2>Diễn biến gần đây</h2>
-          </div>
-          <p class="section-text">Các trận đấu, dungeon, boss, giao dịch và nâng cấp sẽ được ghi theo thứ tự mới nhất.</p>
-        </div>
+      <section class="page" data-page="arsenal">
+        <div class="layout">
+          <section class="card character-card">
+            <div class="section-heading">
+              <div>
+                <p class="overline">Hồ sơ chiến binh</p>
+                <h2>Nhân vật & Inventory</h2>
+              </div>
+              <p class="section-text">Trang quản lý build kiểu Gladiatus: xem chân dung, chỉ số, đồ đang mặc và kho đồ trong cùng một màn hình.</p>
+            </div>
 
-        <div id="log-list" class="stack-list compact-list"></div>
+            <div class="character-shell">
+              <div class="character-profile">
+                <div class="portrait-card">
+                  <div class="portrait-header">
+                    <span class="portrait-name" id="portrait-name">Kẻ vô danh</span>
+                    <span class="portrait-level" id="portrait-level">Lv. 1</span>
+                  </div>
+                  <div class="portrait-frame">
+                    <div class="portrait-avatar">
+                      <span>B&amp;B</span>
+                    </div>
+                  </div>
+                  <button class="secondary-btn portrait-btn" type="button" data-page-target="overview">Xem tổng quan</button>
+                </div>
+
+                <div class="profile-stats-card">
+                  <div class="profile-stat-line">
+                    <span>Máu</span>
+                    <strong id="profile-hp">0 / 0</strong>
+                  </div>
+                  <div class="profile-stat-line">
+                    <span>Năng lượng</span>
+                    <strong id="profile-energy">0 / 0</strong>
+                  </div>
+                  <div class="profile-stat-line">
+                    <span>Stamina</span>
+                    <strong id="profile-stamina">0 / 0</strong>
+                  </div>
+                  <div class="profile-stat-line">
+                    <span>Sức mạnh</span>
+                    <strong id="profile-strength">0</strong>
+                  </div>
+                  <div class="profile-stat-line">
+                    <span>Nhanh nhẹn</span>
+                    <strong id="profile-agility">0</strong>
+                  </div>
+                  <div class="profile-stat-line">
+                    <span>Thể lực</span>
+                    <strong id="profile-vitality">0</strong>
+                  </div>
+                  <div class="profile-stat-line">
+                    <span>Uy danh</span>
+                    <strong id="profile-renown">0</strong>
+                  </div>
+                  <div class="profile-stat-line accent-line">
+                    <span>Sát thương ước tính</span>
+                    <strong id="profile-damage">0 - 0</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="character-management">
+                <div class="equipment-board">
+                  <div class="equipment-board-header">
+                    <span class="slot-name">Bộ đồ đang mặc</span>
+                    <span class="inline-note">Trang bị tốt nhất hoặc equip thủ công từ kho</span>
+                  </div>
+                  <div id="gear-list" class="paperdoll-grid"></div>
+                </div>
+
+                <div class="inventory-board">
+                  <div class="equipment-board-header">
+                    <span class="slot-name">Kho đồ cá nhân</span>
+                    <span id="inventory-capacity" class="inline-note">0 / 0 ô</span>
+                  </div>
+                  <div id="inventory-list" class="inventory-grid"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card market-card">
+            <div class="section-heading">
+              <div>
+                <p class="overline">Chợ đêm</p>
+                <h2>Trang bị theo cấp</h2>
+              </div>
+              <p id="shop-tier-label" class="section-text">Hàng hóa thay đổi theo level hiện tại.</p>
+            </div>
+
+            <div class="utility-row">
+              <button id="refresh-shop-btn" class="secondary-btn">Làm mới shop</button>
+              <span id="refresh-shop-cost" class="inline-note">Phí: 0 vàng</span>
+            </div>
+
+            <div id="shop-list" class="stack-list"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="page" data-page="chronicle">
+        <div class="layout">
+          <section class="card log-card">
+            <div class="section-heading">
+              <div>
+                <p class="overline">Nhật ký đêm</p>
+                <h2>Diễn biến gần đây</h2>
+              </div>
+              <p class="section-text">Các trận đấu, dungeon, boss, giao dịch và nâng cấp sẽ được ghi theo thứ tự mới nhất.</p>
+            </div>
+
+            <div id="log-list" class="stack-list compact-list"></div>
+          </section>
+        </div>
       </section>
     </main>
   </div>

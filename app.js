@@ -125,10 +125,23 @@ function createInitialState() {
 
 let state = createInitialState();
 let saveTimer = null;
+let currentPage = "overview";
+const slotIcons = {
+  "Vũ khí": "⚔",
+  "Áo giáp": "🛡",
+  "Nhẫn": "◌",
+  "Giày": "👢",
+  "Bùa": "✦",
+  "Găng": "🧤",
+  "Áo choàng": "🜂",
+  "Mão": "♛",
+};
 
 const els = {
   playerLevel: document.querySelector("#player-level"),
   playerTitle: document.querySelector("#player-title"),
+  portraitName: document.querySelector("#portrait-name"),
+  portraitLevel: document.querySelector("#portrait-level"),
   goldValue: document.querySelector("#gold-value"),
   hpValue: document.querySelector("#hp-value"),
   strengthStat: document.querySelector("#strength-stat"),
@@ -138,9 +151,18 @@ const els = {
   powerStat: document.querySelector("#power-stat"),
   inventoryCount: document.querySelector("#inventory-count"),
   bossCount: document.querySelector("#boss-count"),
+  inventoryCapacity: document.querySelector("#inventory-capacity"),
   energyValue: document.querySelector("#energy-value"),
   staminaValue: document.querySelector("#stamina-value"),
   xpText: document.querySelector("#xp-text"),
+  profileHp: document.querySelector("#profile-hp"),
+  profileEnergy: document.querySelector("#profile-energy"),
+  profileStamina: document.querySelector("#profile-stamina"),
+  profileStrength: document.querySelector("#profile-strength"),
+  profileAgility: document.querySelector("#profile-agility"),
+  profileVitality: document.querySelector("#profile-vitality"),
+  profileRenown: document.querySelector("#profile-renown"),
+  profileDamage: document.querySelector("#profile-damage"),
   energyBar: document.querySelector("#energy-bar"),
   staminaBar: document.querySelector("#stamina-bar"),
   xpBar: document.querySelector("#xp-bar"),
@@ -165,6 +187,8 @@ const els = {
   saveBtn: document.querySelector("#save-btn"),
   resetBtn: document.querySelector("#reset-btn"),
   saveStatus: document.querySelector("#save-status"),
+  navButtons: [...document.querySelectorAll("[data-page-target]")],
+  pages: [...document.querySelectorAll("[data-page]")],
 };
 
 function randInt(min, max) {
@@ -676,7 +700,9 @@ function renderPlayer() {
   const stats = effectiveStats();
   const power = combatRating();
   els.playerTitle.textContent = currentTitle();
+  els.portraitName.textContent = currentTitle();
   els.playerLevel.textContent = `Lv. ${state.player.level}`;
+  els.portraitLevel.textContent = `Lv. ${state.player.level}`;
   els.goldValue.textContent = state.player.gold.toString();
   els.hpValue.textContent = `${state.player.hp} / ${state.player.maxHp}`;
   els.strengthStat.textContent = stats.strength.toString();
@@ -686,9 +712,18 @@ function renderPlayer() {
   els.powerStat.textContent = power.toString();
   els.inventoryCount.textContent = `${state.inventory.length} / ${INVENTORY_LIMIT}`;
   els.bossCount.textContent = `${state.meta.bossClears.length} / ${bosses.length}`;
+  els.inventoryCapacity.textContent = `${state.inventory.length} / ${INVENTORY_LIMIT} ô`;
   els.energyValue.textContent = `${state.player.energy} / ${state.player.maxEnergy}`;
   els.staminaValue.textContent = `${state.player.stamina} / ${state.player.maxStamina}`;
   els.xpText.textContent = `${state.player.xp} / ${state.player.xpToNext}`;
+  els.profileHp.textContent = `${state.player.hp} / ${state.player.maxHp}`;
+  els.profileEnergy.textContent = `${state.player.energy} / ${state.player.maxEnergy}`;
+  els.profileStamina.textContent = `${state.player.stamina} / ${state.player.maxStamina}`;
+  els.profileStrength.textContent = stats.strength.toString();
+  els.profileAgility.textContent = stats.agility.toString();
+  els.profileVitality.textContent = stats.vitality.toString();
+  els.profileRenown.textContent = stats.renown.toString();
+  els.profileDamage.textContent = `${Math.max(1, power - 18)} - ${power + 12}`;
   els.energyBar.style.width = `${(state.player.energy / state.player.maxEnergy) * 100}%`;
   els.staminaBar.style.width = `${(state.player.stamina / state.player.maxStamina) * 100}%`;
   els.xpBar.style.width = `${(state.player.xp / state.player.xpToNext) * 100}%`;
@@ -833,14 +868,18 @@ function renderShop() {
 function renderGear() {
   els.gearList.innerHTML = Object.entries(state.gear)
     .map(([slot, item]) => {
-      if (!item) {
-        return `<article class="list-item"><div class="slot-name">${slot}</div><div class="item-subtext">Chưa có trang bị.</div></article>`;
-      }
+      const icon = slotIcons[slot] ?? "◆";
+      const emptyClass = item ? "" : "empty";
+      const detail = item
+        ? `<strong>${item.name}</strong><div class="item-subtext">STR +${item.stats.strength} · AGI +${item.stats.agility} · VIT +${item.stats.vitality} · REN +${item.stats.renown}</div>`
+        : `<strong>Ô ${slot}</strong><div class="item-subtext">Chưa có trang bị.</div>`;
       return `
-        <article class="list-item">
+        <article class="paperdoll-slot ${emptyClass}">
           <div class="slot-name">${slot}</div>
-          <div class="item-name">${item.name}</div>
-          <div class="item-subtext">STR +${item.stats.strength} · AGI +${item.stats.agility} · VIT +${item.stats.vitality} · REN +${item.stats.renown}</div>
+          <div class="slot-copy">
+            <span class="paperdoll-icon">${icon}</span>
+            ${detail}
+          </div>
         </article>
       `;
     })
@@ -849,7 +888,7 @@ function renderGear() {
 
 function renderInventory() {
   if (state.inventory.length === 0) {
-    els.inventoryList.innerHTML = `<div class="list-item empty-copy">Kho đang trống. Đồ không đủ mạnh để auto-equip sẽ rơi vào đây.</div>`;
+    els.inventoryList.innerHTML = `<div class="inventory-tile empty-tile">Kho đang trống. Đồ không đủ mạnh để auto-equip sẽ rơi vào đây.</div>`;
     return;
   }
 
@@ -860,7 +899,7 @@ function renderInventory() {
       const diffTone = !current || diff >= 0 ? "good" : "bad";
       const diffLabel = !current ? `Ô ${item.slot} đang trống` : `So với đồ mặc: ${diff >= 0 ? "+" : ""}${diff}`;
       return `
-        <article class="list-item">
+        <article class="inventory-tile">
           <div class="item-topline">
             <div>
               <div class="slot-name">${item.slot}</div>
@@ -924,6 +963,16 @@ function renderButtons() {
   els.fightBtn.disabled = !state.enemy || state.player.stamina < 1;
 }
 
+function setPage(pageName) {
+  currentPage = pageName;
+  els.pages.forEach((page) => {
+    page.classList.toggle("active", page.dataset.page === pageName);
+  });
+  els.navButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.pageTarget === pageName);
+  });
+}
+
 function render() {
   renderPlayer();
   renderDungeons();
@@ -976,12 +1025,17 @@ function initializeGame() {
 }
 
 document.addEventListener("click", (event) => {
+  const navButton = event.target.closest("[data-page-target]");
   const dungeonButton = event.target.closest("[data-dungeon-id]");
   const buyButton = event.target.closest("[data-buy-id]");
   const bossButton = event.target.closest("[data-boss-id]");
   const equipButton = event.target.closest("[data-equip-index]");
   const sellButton = event.target.closest("[data-sell-index]");
   const campButton = event.target.closest("[data-camp-action]");
+
+  if (navButton) {
+    setPage(navButton.dataset.pageTarget);
+  }
 
   if (dungeonButton) {
     startDungeon(dungeonButton.dataset.dungeonId);
@@ -1043,3 +1097,4 @@ setInterval(() => {
 }, 1000);
 
 initializeGame();
+setPage(currentPage);
