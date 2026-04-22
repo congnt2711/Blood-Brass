@@ -88,8 +88,8 @@ function createInitialState() {
       gold: 120,
       hp: 120,
       maxHp: 120,
-      energy: 12,
-      maxEnergy: 12,
+      energy: 20,
+      maxEnergy: 20,
       stamina: 10,
       maxStamina: 10,
       strength: 8,
@@ -388,10 +388,13 @@ function gainXp(amount) {
     state.player.agility += 2;
     state.player.vitality += 3;
     state.player.maxHp += 18;
+    state.player.maxEnergy += 2;
+    state.player.maxStamina += 1;
     state.player.hp = state.player.maxHp;
-    state.player.maxEnergy = Math.min(24, state.player.maxEnergy + 1);
+    state.player.energy = state.player.maxEnergy;
+    state.player.stamina = state.player.maxStamina;
     leveledUp = true;
-    addLog(`Lên cấp ${state.player.level}. Chỉ số cơ bản được tăng thêm.`, "good");
+    addLog(`Lên cấp ${state.player.level}. Bạn được hồi đầy máu, mana và stamina.`, "good");
   }
 
   if (leveledUp) {
@@ -689,7 +692,7 @@ function restAtCamp(type) {
     state.player.gold -= cost;
     state.player.hp = Math.min(state.player.maxHp, state.player.hp + 18);
     state.player.energy = Math.min(state.player.maxEnergy, state.player.energy + 4);
-    addLog(`Canh đen đã hồi máu và bơm thêm năng lượng cho chuyến đi kế tiếp.`, "good");
+    addLog(`Canh đen đã hồi máu và bơm thêm mana cho chuyến đi kế tiếp.`, "good");
   }
 
   render();
@@ -727,7 +730,7 @@ function renderPlayer() {
   els.energyBar.style.width = `${(state.player.energy / state.player.maxEnergy) * 100}%`;
   els.staminaBar.style.width = `${(state.player.stamina / state.player.maxStamina) * 100}%`;
   els.xpBar.style.width = `${(state.player.xp / state.player.xpToNext) * 100}%`;
-  els.energyRegenText.textContent = "+1 năng lượng mỗi phút";
+  els.energyRegenText.textContent = "+1 mana mỗi phút";
   els.staminaRegenText.textContent = "+1 stamina mỗi giờ";
   updateSaveStatus();
 }
@@ -742,7 +745,7 @@ function renderDungeons() {
           <div class="action-topline">
             <div>
               <div class="action-title">Dungeon: ${dungeon.name}</div>
-              <div class="item-subtext">${dungeon.duration}s · Tốn ${dungeon.energyCost} năng lượng · Loot ${Math.round(dungeon.lootChance * 100)}%</div>
+              <div class="item-subtext">${dungeon.duration}s · Tốn ${dungeon.energyCost} mana · Loot ${Math.round(dungeon.lootChance * 100)}%</div>
             </div>
             <span class="pill req-pill ${locked ? "locked" : ""}">Lv ${dungeon.requiredLevel}+</span>
           </div>
@@ -815,7 +818,7 @@ function renderBosses() {
             </span>
           </div>
           <div class="pill-row">
-            <span class="pill">Tốn ${boss.energyCost} năng lượng</span>
+            <span class="pill">Tốn ${boss.energyCost} mana</span>
             <span class="pill">${boss.reward.gold} vàng</span>
             <span class="pill">${boss.reward.xp} XP</span>
             <span class="pill">${boss.reward.renown} uy danh</span>
@@ -934,7 +937,7 @@ function renderCamp() {
     </article>
     <article class="guide-box">
       <span>Nồi canh đen</span>
-      <strong>+18 máu, +4 năng lượng</strong>
+      <strong>+18 máu, +4 mana</strong>
       <p>Gói hồi phục đa dụng cho các nhịp farm liên tục. Giá 48 vàng.</p>
       <button class="camp-btn" data-camp-action="black-broth" ${brothDisabled ? "disabled" : ""}>Uống ngay</button>
     </article>
